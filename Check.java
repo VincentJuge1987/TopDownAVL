@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -18,6 +17,13 @@ public class Check {
 	private static final Set<List<Integer>> READ = new HashSet<>();
 	private static final Set<List<Integer>> WRITE = new HashSet<>();
 
+	/**
+	 * Transforms a string containing only digits or -1 into a list containing
+	 * one-digit integers or -1.
+	 * 
+	 * @param s String to transform.
+	 * @return Integer-valued list represented by s.
+	 */
 	private static List<Integer> stringToList(String s) {
 		List<Integer> list = new ArrayList<>();
 		for (int i = 0; i < s.length(); i++) {
@@ -39,6 +45,13 @@ public class Check {
 		return list;
 	}
 
+	/**
+	 * Appends elements to an integer-valued list.
+	 * 
+	 * @param list List to which elements shall be appended.
+	 * @param p    Elements to append.
+	 * @return List in which elements were appended.
+	 */
 	private static List<Integer> augmented(List<Integer> list, int... p) {
 		List<Integer> copy = new ArrayList<>(list);
 		for (int q : p) {
@@ -82,6 +95,12 @@ public class Check {
 		return copy;
 	}
 
+	/**
+	 * Checks that a given line (already split into tab-separated strings)
+	 * represents a valid rule in phase 1.
+	 * 
+	 * @param tab Array of strings representing the line to check.
+	 */
 	private static void phase1(String[] tab) {
 		String[] data = tab[1].split(":");
 		List<Integer> list = stringToList(data[0]);
@@ -99,8 +118,28 @@ public class Check {
 		}
 	}
 
+	/**
+	 * Checks that a given colon-separated string tab (represented as an array of
+	 * strings) represents a valid reply by Bob to a move of Alice in phase 1.
+	 * 
+	 * @param list  List from which Alice starts.
+	 * @param pos   Position of the decorated element in Alice's list.
+	 * @param split Position of the element that Alice wants Bob to replace by two
+	 *              elements. In other words, Alice performed the move M{split}.
+	 * @param i     Choice number that Bob has: he may replace an integer n by
+	 *              n+1,n+1 (choice 0) or n+1,n+2 (choice 1) or n+2,n+1 (choice 2).
+	 * @param j     Sub-choice number that Bob may have: if Alice asked him to
+	 *              replace a decorated integer, the new decorated integer will be
+	 *              the j-th one of the two integers Bob provides. If Bob has no
+	 *              choice (because the integer he replaces was not decorated), j
+	 *              should just be 0.
+	 * @param tab   String of the form List2:pos2 given back by Bob. List2 should
+	 *              result from the choice number 0, 1 or 2 that Bob made, and pos2
+	 *              indicates the new position of the decorated element of Bob's
+	 *              list.
+	 */
 	private static void match(List<Integer> list, int pos, int split, int i, int j, String[] tab) {
-		List<Integer> other = IntStream.range(0, tab[0].length()).map(u -> (tab[0].charAt(u) - '0')).boxed().toList();
+		List<Integer> other = stringToList(tab[0]);
 		int p = Integer.parseInt(tab[1]);
 		if (p != pos + (pos > split ? 1 : 0) + j) {
 			throw new IllegalStateException("Error @ line " + line);
@@ -115,6 +154,12 @@ public class Check {
 		READ.add(augmented(other, p));
 	}
 
+	/**
+	 * Checks that a given line (already split into tab-separated strings)
+	 * represents a valid rule in phase 2.
+	 * 
+	 * @param tab Array of strings representing the line to check.
+	 */
 	private static void phase2(String[] tab) {
 		if (tab.length != 4) {
 			throw new IllegalStateException("Error @ line " + line);
@@ -139,6 +184,12 @@ public class Check {
 		READ.add(augmented(list3, target3, Integer.MAX_VALUE));
 	}
 
+	/**
+	 * Checks that a given line (already split into tab-separated strings)
+	 * represents a valid rule in phase 3.
+	 * 
+	 * @param tab Array of strings representing the line to check.
+	 */
 	private static void phase3(String[] tab) {
 		if (tab.length != 3) {
 			throw new IllegalStateException("Error @ line " + line);
@@ -158,6 +209,12 @@ public class Check {
 		READ.add(augmented(list2, target2, Integer.MAX_VALUE));
 	}
 
+	/**
+	 * Checks that a given tab-separated string is a valid line representing a
+	 * choice by Alice in phase 1, 2 or 3.
+	 * 
+	 * @param s String to check.
+	 */
 	private static void check(String s) {
 		String[] tab = s.split(TAB);
 		if (tab[0].equals("E")) {
@@ -171,6 +228,11 @@ public class Check {
 		}
 	}
 
+	/**
+	 * Read the input file and checks that it contains no syntax error.
+	 * 
+	 * @throws IOException
+	 */
 	private static void read() throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		boolean b = true;
@@ -185,6 +247,16 @@ public class Check {
 		br.close();
 	}
 
+	/**
+	 * Requires indicating whether we shall simulate [i]nsertions or [d]eletions.
+	 * Checks that each line of the input file is syntactically correct, and that
+	 * each list given as input (resp. output) is also given as output (resp. input)
+	 * somewhere, with three exceptions: the initial case of the decorated list (0),
+	 * and the final cases of the undecorated lists (0) and (+1) or (-1).
+	 * 
+	 * @param args
+	 * @throws IOException
+	 */
 	public static void main(String[] args) throws IOException {
 		String goal = null;
 		switch (args[0]) {
@@ -202,7 +274,7 @@ public class Check {
 			throw new IllegalStateException(
 					"The command should be of the form: java Check [insertion/i/deletion/d] < input-file");
 		}
-		READ.add(List.of(BEST, BEST));
+		READ.add(List.of(BEST, 0));
 		WRITE.add(List.of(BEST, BEST, Integer.MAX_VALUE));
 		WRITE.add(List.of(OTHER, OTHER, Integer.MAX_VALUE));
 		read();
