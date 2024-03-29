@@ -21,7 +21,7 @@ Both files `insertion.txt` and `deletion.txt` contain descriptions of strategies
 These strategies are given as a succession of lines that may be read independently.
 Each line consists in three to height strings, separated by tabulation symbols (denoted by `[TAB]` in this `README.md` file):
 
-- the leftmost string is a single-letter identifier `E`, `T` or `M`, indicating whether we are in phase 1, 2 or 3;
+- the leftmost string is a single digit 1, 2 or 3, indicating which phase we are in;
 
 - the second string represents Alice's input, which consists in a list representation and one or two integers, separated by colon symbols (`:`);
 
@@ -37,18 +37,18 @@ In a list of length *len*, element positions are numbered from *0* to *len-1*.
 
 Each such step of Alice's strategy is represented by a line of the form
 
-- `E [TAB]` *L0*`:`*d0*`:`*i* `[TAB]` *L1*`:`*d1* `[TAB]` *L2*`:`*d2* `[TAB]` *L3*`:`*d3* , or
+- `1 [TAB]` *L0*`:`*d0*`:`*i* `[TAB]` *L1*`:`*d1* `[TAB]` *L2*`:`*d2* `[TAB]` *L3*`:`*d3* , or
 
-- `E [TAB]` *L0*`:`*d0*`:`*i* `[TAB]` *L1*`:`*d1* `[TAB]` *L2*`:`*d2* `[TAB]` *L3*`:`*d3* `[TAB]` *L4*`:`*d4* `[TAB]` *L5*`:`*d5* `[TAB]` *L6*`:`*d6* ,
+- `1 [TAB]` *L0*`:`*d0*`:`*i* `[TAB]` *L1*`:`*d1* `[TAB]` *L2*`:`*d2* `[TAB]` *L3*`:`*d3* `[TAB]` *L4*`:`*d4* `[TAB]` *L5*`:`*d5* `[TAB]` *L6*`:`*d6* ,
 
-where each name *Lk* represents an integer-valued list; each integer *dk* is the position of the decorated element in the list *Lk*; and Alice wishes do perform the move `E`*i*, i.e., to choose the *i*th element of the list.
+where each name *Lk* represents an integer-valued list; each integer *dk* is the position of the decorated element in the list *Lk*; and Alice wishes do perform the move S*i*, i.e., to choose the *i*th element of the list.
 In practice, the strings *Lk*`:`*dk* appear in increasing lexicographic order, which is used by our verification program.
 
-This line means that, given the list *L0* in which the element in position *d0* is decorated, Alice wishes to perform the move `E`*i*.
+This line means that, given the list *L0* in which the element in position *d0* is decorated, Alice wishes to perform the move S*i*.
 If *i* is different from *d0*, Bob will choose which of the three lists *L1* (whose *d1*th element is decorated), *L2* (whose *d2*th element is decorated) or *L3* (whose *d3*th element is decorated) he will give back to Alice.
 If *i* = *d0*, Bob has six choices, hence the six decorated lists *L1*`:`*d1* to *L6*`:`*d6*.
 
-For instance, line 5 of the file `insertion.txt` is: `E [TAB] 122:1:0 [TAB] 2222:2 [TAB] 2322:2 [TAB] 3222:2`.
+For instance, line 5 of the file `insertion.txt` is: `1 [TAB] 122:1:0 [TAB] 2222:2 [TAB] 2322:2 [TAB] 3222:2`.
 This line should be read as follows:
 
 "In phase 1, given a list (1,2,2) whose element in position 1 is decorated, Alice performs the move E0: she asks Bob to replace the integer 1 in position 0 by two integers, which will be either 2,2, 2,3 or 3,2. Doing so, Bob will give Alice back a list (2,2,2,2), or (2,3,2,2), or (3,2,2,2); in each such case, position 2 is now decorated."
@@ -61,17 +61,17 @@ Then, Bob chooses whether he wishes to replace *n* by an undecorated integer *n*
 
 Each such step of Alice's strategy is represented by a line of the form
 
-- `T [TAB]` *L0*`:`*d0*`:`*t0* `[TAB]` *L1*`:`*t1* `[TAB]` *L2*`:`*t2*.
+- `2 [TAB]` *L0*`:`*d0*`:`*t0* `[TAB]` *L1*`:`*t1* `[TAB]` *L2*`:`*t2*.
 
 In practice, we demand that *L0* coincides with *L1* and not with *L2*; this demand is used by our verification program.
 
 This line means that, given the list *L* in which the element in position *d* is decorated, Alice wishes to launch phase 2 of the game, and chooses the target integer *t*.
 As a result, Bob chooses whether he gives her back the list *L1*, with target integer *t1*, or the list *L2*, with target integer *t2*.
 
-For instance, line 314 of the file `insertion.txt` is: `T [TAB] 233432:5:-1 [TAB] 233432:-1 [TAB] 233431:-1`.
+For instance, line 314 of the file `insertion.txt` is: `2 [TAB] 233432:5:-1 [TAB] 233432:-1 [TAB] 233431:-1`.
 This line should be read as follows:
 
-"In phase 1, given a list (2,3,3,4,3,2) whose element in position 5 is decorated, Alice chooses to launch phase 2, and performs the move T: she chooses the target element *t* = -1, which is legitimate when simulating insertions.
+"In phase 1, given a list (2,3,3,4,3,2) whose element in position 5 is decorated, Alice chooses to launch phase 2: she chooses the target element *t* = -1, which is legitimate when simulating insertions.
 Bob will choose whether he gives her back the list (2,3,3,4,3,2) itself or the list (2,3,3,4,3,1), which he obtained by adding -1 to the element in position 5."
 
 ### Phase 3
@@ -80,11 +80,11 @@ Bob will choose whether he gives her back the list (2,3,3,4,3,2) itself or the l
 
 Each such step of Alice's strategy is represented by a line of the form
 
-- `M [TAB]` *L0*`:`*t*`:`*i* `[TAB]` *L1*`:`*t*.
+- `3 [TAB]` *L0*`:`*t*`:`*i* `[TAB]` *L1*`:`*t*.
 
 This line means that, given the undecorated list *L0* and the target integer *t*, Alice performs the move M*i* and merges the elements in positions *i* and *i+1*, thereby obtaining the list *L1*.
 
-For instance, line 2024 of the file `insertion.txt` is: `M [TAB] 2441:0:1 [TAB] 231:0`.
+For instance, line 2024 of the file `insertion.txt` is: `3 [TAB] 2441:0:1 [TAB] 231:0`.
 This line should be read as follows:
 
 "In phase 1, given an undecorated list (2,4,4,1) and a target integer *t* = 0, Alice chooses to perform move M1, i.e. to merge the elements in positions 1 and 2, thereby obtaining the list (2,3,1), without changing her target integer *t* = 0."

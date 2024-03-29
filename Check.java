@@ -217,11 +217,11 @@ public class Check {
 	 */
 	private static void check(String s) {
 		String[] tab = s.split(TAB);
-		if (tab[0].equals("E")) {
+		if (tab[0].equals("1")) {
 			phase1(tab);
-		} else if (tab[0].equals("T")) {
+		} else if (tab[0].equals("2")) {
 			phase2(tab);
-		} else if (tab[0].equals("M")) {
+		} else if (tab[0].equals("3")) {
 			phase3(tab);
 		} else {
 			throw new IllegalStateException("Error @ line " + line);
